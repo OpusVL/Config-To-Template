@@ -1,0 +1,54 @@
+#!/usr/bin/perl
+use strictures 2;
+
+use Config::ZOMG;
+use Path::Tiny;
+use Config::Environment::Overload;
+use Template;
+
+my $template = shift;
+
+unless($template)
+{
+    # display usage.
+    print STDERR "Must specify template\n";
+    exit(1)
+}
+
+my $appname = shift;
+my $path = shift;
+my $config;
+
+# FIXME: should I try to support APP_CONFIG too somehow?
+unless($appname && $path)
+{
+    # do we have CATALYST_CONFIG?
+    if($ENV{CATALYST_CONFIG})
+    {
+        my $config_file = path($ENV{CATALYST_CONFIG});
+        # assume app name from filename.
+        # might not be completely reliable
+        $appname = $config_file->basename(qr/\.\w+$/);
+        $config = Config::ZOMG->new(file => $config_file);
+    }
+}
+unless($config)
+{
+    if($appname)
+    {
+        $config = Config::ZOMG->new(name => $appname, path => $path // '.');
+    }
+}
+my $config_hash = $config->load;
+my $app_prefix = Config::Environment::Overload::app_prefix($appname);
+$config_hash = Config::Environment::Overload::override_setup($app_prefix, $config_hash);
+my $output;
+my $t = Template->new();
+my $vars = { config => $config_hash };
+use Data::Dumper;
+print Dumper($vars);
+$t->process($template, $vars, \$output) || die $template->error();
+print $output;
+# now pass it through Template Toolkit.
+
+1;
