@@ -45,7 +45,7 @@ $config_hash = Config::Environment::Overload::override_setup($app_prefix, $confi
 my $output;
 my $t = Template->new();
 my $vars = { config => $config_hash };
-$t->process($template, $vars, \$output) || die $template->error();
+$t->process($template, $vars, \$output) || die $t->error();
 print $output;
 # now pass it through Template Toolkit.
 
