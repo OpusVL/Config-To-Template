@@ -43,7 +43,7 @@ my $config_hash = $config->load;
 my $app_prefix = Config::Environment::Overload::app_prefix($appname);
 $config_hash = Config::Environment::Overload::override_setup($app_prefix, $config_hash);
 my $output;
-my $t = Template->new();
+my $t = Template->new(ABSOLUTE => 1);
 my $vars = { config => $config_hash };
 $t->process($template, $vars, \$output) || die $t->error();
 print $output;
