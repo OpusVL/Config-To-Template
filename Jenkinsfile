@@ -19,8 +19,9 @@ node {
 
   } catch (e) {
     currentBuild.result = "FAILED"
-    notifyFailed()
     throw e
+  } finally {
+    notifyBuild(currentBuild.result)
   }
 
 
